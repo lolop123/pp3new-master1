@@ -58,6 +58,14 @@ const HomeScreen = () => {
       } else if (numberMinusDays / (1000 * 60 * 60 * 24) < -50) {
         setplaceStatus("Not sharing");
       }
+
+      setSelectedLocation(docSnap.data().geop);
+      setSelectedLocation(docSnap.data().geop);
+      console.log("запросили geop:" );
+      console.log(docSnap.data().geop)
+      console.log(selectedLocation)
+
+      
       
       console.log("in bd " +  docSnap.data().permPlace);
       
@@ -119,6 +127,7 @@ const HomeScreen = () => {
 
     setDoc(doc(db, "people", auth.currentUser?.email), docData);
     setpermPlace(parkingPlace);
+ 
     setReload((oldKey) => oldKey + 2);
 
   }
@@ -134,17 +143,43 @@ const HomeScreen = () => {
   const [shareDateStart, setShareDateStart] = useState("");
   const [shareDateEnd, setshareDateEnd] = useState("");
   const [selectedLocation, setSelectedLocation] = useState({
-    "latitude": 49.48820339619884,
-    "longitude": 25.79849347472191,
+    "latitude": 0,
+    "longitude": 0,
   });
 
-  const handleMapPress = event => {
-    setSelectedLocation({
-      latitude: event.nativeEvent.coordinate.latitude,
-      longitude: event.nativeEvent.coordinate.longitude,
-    });
-    console.log(selectedLocation)
+  const handleMapPress = async(event)=> {
+    const lat = Number(event.nativeEvent.coordinate.latitude);
+    const lg = Number(event.nativeEvent.coordinate.longitude);
+    await setSelectedLocation({
+      latitude: lat,
+      longitude: lg,
+    })
+   
     
+    //console.log("только что выбрали:");
+    //console.log(selectedLocation);
+
+    const docSnap = await getDoc(doc(db, "people", auth.currentUser?.email));
+
+    const docData = {
+      currentPlace: 0,
+      mail: auth.currentUser?.email,
+      permPlace: docSnap.data().permPlace,
+      date: docSnap.data().date,
+      dateMax: docSnap.data().dateMax,
+      statusOfPermPla: docSnap.data().statusOfPermPla,
+      searchStatus: docSnap.data().searchStatus,
+      takingEnd: docSnap.data().takingEnd,
+      takingStart: docSnap.data().takingStart,
+      takerMail: docSnap.data().takerMail,
+      geop:{
+        "latitude": lat,
+        "longitude": lg,
+      }
+    };
+  setDoc(doc(db, "people", auth.currentUser?.email), docData); 
+
+  setReload((oldKey) => oldKey + 2);
   };
 
   const showDatePicker = () => {
@@ -184,7 +219,7 @@ const HomeScreen = () => {
     hideDatePicker();
 
     console.log("hi " + shareDateStart);
-    setReload((oldKey) => oldKey + 2);
+    
   };
 
   const handleConfirmMax = async (date) => {

@@ -104,7 +104,11 @@ const LoginScreen = () => {
           searchStatus: 'a',
           takingEnd: theBigDay,
           takingStart:theBigDay,
-          takerMail: 'admin'
+          takerMail: 'admin',
+          geop:{
+            "latitude": 0.0,
+            "longitude": 0.0,
+          }
         };
         console.log('check register1')
        setDoc(doc(db, "people", user.email), docData);
