@@ -9,7 +9,7 @@ import {
 import SwitchSelector from "react-native-switch-selector";
 import { useNavigation } from "@react-navigation/core";
 import React, { useEffect, useState } from "react";
-import MapView from 'react-native-maps';
+
 
 
 import { initializeApp } from "firebase/app";
