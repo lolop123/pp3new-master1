@@ -10,8 +10,6 @@ import SwitchSelector from "react-native-switch-selector";
 import { useNavigation } from "@react-navigation/core";
 import React, { useEffect, useState } from "react";
 
-
-
 import { initializeApp } from "firebase/app";
 import {
   getFirestore,
@@ -22,43 +20,36 @@ import {
   getDoc,
   Timestamp,
 } from "firebase/firestore";
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {firebaseConfig} from '../fireconf';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { firebaseConfig } from "../fireconf";
 
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { getAuth1, signInWithEmailAndPassword } from "firebase/auth";
 
-
-
 const _storeData = async (value) => {
   try {
-    await AsyncStorage.setItem(
-      'switcherStatusStorage',
-      value
-    );
-    console.log(value)
+    await AsyncStorage.setItem("switcherStatusStorage", value);
+    console.log(value);
   } catch (error) {
     // Error saving data
   }
 };
-async function retrieveData () {
-  console.log('попали в');
+async function retrieveData() {
+  console.log("попали в");
   try {
-    const value = await AsyncStorage.getItem('switcherStatusStorage');
+    const value = await AsyncStorage.getItem("switcherStatusStorage");
     if (value !== null) {
-      console.log('лежит' + value);
-      return(value)
+      console.log("лежит" + value);
+      return value;
     }
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
-  
-};
+}
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth();
-
 
 const LoginScreen = () => {
   var theBigDay = new Date(2000, 1, 2);
@@ -71,23 +62,19 @@ const LoginScreen = () => {
   const toggleSwitch = () => setIsEnabled((previousState) => !previousState);
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => 
-    {
-      retrieveData().then(data =>{
-        console.log('effect' + data)
-        if (user && (data === 'a')) {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      retrieveData().then((data) => {
+        console.log("effect" + data);
+        if (user && data === "a") {
           navigation.replace("Home");
-        } else if(user && (data === 'b')){
+        } else if (user && data === "b") {
           navigation.replace("Search");
         }
       });
-      })
-      
-      
-          
-    
-        return unsubscribe;
-      });
+    });
+
+    return unsubscribe;
+  });
 
   const handleSignUp = async () => {
     createUserWithEmailAndPassword(auth, email, password)
@@ -97,28 +84,25 @@ const LoginScreen = () => {
         const docData = {
           currentPlace: 0,
           mail: user.email,
-          permPlace: 'Please enter your permanent place',
+          permPlace: "Please enter your permanent place",
           date: theBigDay,
-          dateMax : theBigDay,
+          dateMax: theBigDay,
           statusOfPermPla: "free",
-          searchStatus: 'a',
+          searchStatus: "a",
           takingEnd: theBigDay,
-          takingStart:theBigDay,
-          takerMail: 'admin',
-          geop:{
-            "latitude": 0.0,
-            "longitude": 0.0,
-          }
+          takingStart: theBigDay,
+          takerMail: "admin",
+          geop: {
+            latitude: 0.0,
+            longitude: 0.0,
+          },
         };
-        console.log('check register1')
-       setDoc(doc(db, "people", user.email), docData);
-        console.log('check register2')
+        console.log("check register1");
+        setDoc(doc(db, "people", user.email), docData);
+        console.log("check register2");
       })
       .catch((error) => alert(error.message));
-      console.log('check register2')
-    
-
-    
+    console.log("check register2");
   };
 
   const handleLogin = async () => {
@@ -128,7 +112,7 @@ const LoginScreen = () => {
         console.log("Logged in with:", user.email);
       })
       .catch((error) => alert(error.message));
-      console.log('logged in')
+    console.log("logged in");
     // sendSearchStatus();
   };
 
@@ -151,19 +135,18 @@ const LoginScreen = () => {
   // }
 
   const optionsOFSwitcher = [
-    { label: "I have place", value: 'a' },
-    { label: "Ill search place", value: 'b' },
+    { label: "I have place", value: "a" },
+    { label: "Ill search place", value: "b" },
   ];
-  
+
   return (
     <KeyboardAvoidingView style={styles.container}>
       <View style={styles.inputContainer}>
         <SwitchSelector
-        buttonColor={'#000000'}
+          buttonColor={"#000000"}
           options={optionsOFSwitcher}
           initial={0}
           onPress={(value) => _storeData(value)}
-          
         />
         <TextInput
           placeholder="Email"
@@ -184,15 +167,12 @@ const LoginScreen = () => {
         <TouchableOpacity onPress={handleLogin} style={styles.button}>
           <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity>
-        
-        <TouchableOpacity
-          onPress={handleSignUp}
-          style={styles.button}
-        >
+
+        <TouchableOpacity onPress={handleSignUp} style={styles.button}>
           <Text style={styles.buttonText}>Register</Text>
         </TouchableOpacity>
-       {/*  <MapView style={styles.map} />*/}
-      </View> 
+        {/*  <MapView style={styles.map} />*/}
+      </View>
     </KeyboardAvoidingView>
   );
 };
@@ -246,8 +226,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   map: {
-    width: '100%',
-    height: '100%',
+    width: "100%",
+    height: "100%",
   },
 });
-

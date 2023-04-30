@@ -20,9 +20,8 @@ import {
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import MapView, { Marker } from 'react-native-maps';
-import {firebaseConfig} from '../fireconf';
-
+import MapView, { Marker } from "react-native-maps";
+import { firebaseConfig } from "../fireconf";
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
@@ -32,14 +31,12 @@ const HomeScreen = () => {
   var theBigDay = new Date(2000, 1, 2);
   const [reload, setReload] = useState(0);
 
- 
-
   useEffect(() => {
     const getcurrPlace = async () => {
       const docRef = doc(db, "people", auth.currentUser?.email);
       const docSnap = await getDoc(docRef);
       console.log("-------");
-      
+
       const timeElapsed = Date.now();
       const today = new Date(timeElapsed);
       let numberMinusDays =
@@ -61,16 +58,13 @@ const HomeScreen = () => {
 
       setSelectedLocation(docSnap.data().geop);
       setTakerMail(docSnap.data().takerMail);
-      console.log("запросили geop:" );
-      console.log(docSnap.data().geop)
-      console.log(selectedLocation)
+      console.log("запросили geop:");
+      console.log(docSnap.data().geop);
+      console.log(selectedLocation);
 
-      
-      
-      console.log("in bd " +  docSnap.data().permPlace);
-      
-       setpermPlace(docSnap.data().permPlace)
-      
+      console.log("in bd " + docSnap.data().permPlace);
+
+      setpermPlace(docSnap.data().permPlace);
 
       console.log("in state " + permanentPlace);
 
@@ -82,11 +76,12 @@ const HomeScreen = () => {
         docSnap.data().dateMax.toDate().setHours(0, 0, 0, 0) ==
         theBigDay.setHours(0, 0, 0, 0)
       ) {
-        console.log('в докснепе'+docSnap.data().dateMax.toDate().setHours(0, 0, 0, 0))
-        console.log('в бигдейте'+theBigDay.setHours(0, 0, 0, 0))
+        console.log(
+          "в докснепе" + docSnap.data().dateMax.toDate().setHours(0, 0, 0, 0)
+        );
+        console.log("в бигдейте" + theBigDay.setHours(0, 0, 0, 0));
         setshareDateEnd(" ");
       } else {
-        
         setshareDateEnd(
           docSnap.data().dateMax.toDate().toLocaleDateString("en-us")
         );
@@ -123,14 +118,13 @@ const HomeScreen = () => {
       takingEnd: docSnap.data().takingEnd,
       takingStart: docSnap.data().takingStart,
       takerMail: docSnap.data().takerMail,
-      geop: docSnap.data().geop
+      geop: docSnap.data().geop,
     };
 
     setDoc(doc(db, "people", auth.currentUser?.email), docData);
     setpermPlace(parkingPlace);
- 
-    setReload((oldKey) => oldKey + 2);
 
+    setReload((oldKey) => oldKey + 2);
   }
 
   const [parkingPlace, setPlace] = useState("");
@@ -145,19 +139,18 @@ const HomeScreen = () => {
   const [shareDateEnd, setshareDateEnd] = useState("");
   const [takerMail, setTakerMail] = useState("admin");
   const [selectedLocation, setSelectedLocation] = useState({
-    "latitude": 0,
-    "longitude": 0,
+    latitude: 0,
+    longitude: 0,
   });
 
-  const handleMapPress = async(event)=> {
+  const handleMapPress = async (event) => {
     const lat = Number(event.nativeEvent.coordinate.latitude);
     const lg = Number(event.nativeEvent.coordinate.longitude);
     await setSelectedLocation({
       latitude: lat,
       longitude: lg,
-    })
-   
-    
+    });
+
     //console.log("только что выбрали:");
     //console.log(selectedLocation);
 
@@ -174,14 +167,14 @@ const HomeScreen = () => {
       takingEnd: docSnap.data().takingEnd,
       takingStart: docSnap.data().takingStart,
       takerMail: docSnap.data().takerMail,
-      geop:{
-        "latitude": lat,
-        "longitude": lg,
-      }
+      geop: {
+        latitude: lat,
+        longitude: lg,
+      },
     };
-  setDoc(doc(db, "people", auth.currentUser?.email), docData); 
+    setDoc(doc(db, "people", auth.currentUser?.email), docData);
 
-  setReload((oldKey) => oldKey + 2);
+    setReload((oldKey) => oldKey + 2);
   };
 
   const showDatePicker = () => {
@@ -209,20 +202,19 @@ const HomeScreen = () => {
       permPlace: docSnap.data().permPlace,
       date: date,
       dateMax: docSnap.data().dateMax,
-      statusOfPermPla: 'free',
+      statusOfPermPla: "free",
       searchStatus: docSnap.data().searchStatus,
       takingEnd: docSnap.data().takingEnd,
       takingStart: docSnap.data().takingStart,
       takerMail: docSnap.data().takerMail,
-      geop: docSnap.data().geop
+      geop: docSnap.data().geop,
     };
-    
-     setDoc(doc(db, "people", auth.currentUser?.email), docData);
-    
+
+    setDoc(doc(db, "people", auth.currentUser?.email), docData);
+
     hideDatePicker();
 
     console.log("hi " + shareDateStart);
-    
   };
 
   const handleConfirmMax = async (date) => {
@@ -241,7 +233,7 @@ const HomeScreen = () => {
       takingEnd: docSnap.data().takingEnd,
       takingStart: docSnap.data().takingStart,
       takerMail: docSnap.data().takerMail,
-      geop: docSnap.data().geop
+      geop: docSnap.data().geop,
     };
     setDoc(doc(db, "people", auth.currentUser?.email), docData);
     hideDatePickerMax();
@@ -298,8 +290,7 @@ const HomeScreen = () => {
       takingEnd: docSnap.data().takingEnd,
       takingStart: docSnap.data().takingStart,
       takerMail: docSnap.data().takerMail,
-      geop: docSnap.data().geop
-      
+      geop: docSnap.data().geop,
     };
     try {
       setDoc(doc(db, "people", auth.currentUser?.email), docData);
@@ -312,39 +303,38 @@ const HomeScreen = () => {
   return (
     <View style={styles.container}>
       <Text>Email: {auth.currentUser?.email}</Text>
-      
+
       <TextInput
-        
         placeholder={permanentPlace}
         value={parkingPlace}
         onChangeText={(text) => setPlace(text)}
         onSubmitEditing={settPlace}
       />
-      {!isPermPlaceVisible ? (<Text>Your place status: {placeStatus}</Text>   ) : null}
+      {!isPermPlaceVisible ? (
+        <Text>Your place status: {placeStatus}</Text>
+      ) : null}
       {isSharePlaceVisible ? (
         <Text>
           You will share place from: {shareDateStart} to {shareDateEnd}{" "}
         </Text>
       ) : null}
-      {!(takerMail == "admin") ? (
-        <Text>Taker: {takerMail}</Text>
-       ): null}
+      {!(takerMail == "admin") ? <Text>Taker: {takerMail}</Text> : null}
       {isPermPlaceVisible ? (
         <TouchableOpacity onPress={settPlace} style={styles.button}>
           <Text style={styles.buttonText}>Set my place</Text>
         </TouchableOpacity>
       ) : null}
       {!isPermPlaceVisible ? (
-      <TouchableOpacity onPress={showDatePicker} style={styles.button}>
-        <Text style={styles.buttonText}>set date min</Text>
-      </TouchableOpacity>
-       ) : null}
-       {!isPermPlaceVisible ? (
-      <TouchableOpacity onPress={showDatePickerMax} style={styles.button}>
-        <Text style={styles.buttonText}>set date max</Text>
-      </TouchableOpacity>
-       ) : null}
-       
+        <TouchableOpacity onPress={showDatePicker} style={styles.button}>
+          <Text style={styles.buttonText}>set date min</Text>
+        </TouchableOpacity>
+      ) : null}
+      {!isPermPlaceVisible ? (
+        <TouchableOpacity onPress={showDatePickerMax} style={styles.button}>
+          <Text style={styles.buttonText}>set date max</Text>
+        </TouchableOpacity>
+      ) : null}
+
       <DateTimePickerModal
         isVisible={isDatePickerVisible}
         mode="date"
@@ -361,15 +351,24 @@ const HomeScreen = () => {
         <Text style={styles.buttonText}>My place</Text>
       </TouchableOpacity> */}
       {isSharePlaceVisible ? (
-      <TouchableOpacity onPress={dontShareF} style={styles.button}>
-        <Text style={styles.buttonText}>Dont share</Text>
-      </TouchableOpacity>
-        ) : null}
+        <TouchableOpacity onPress={dontShareF} style={styles.button}>
+          <Text style={styles.buttonText}>Dont share</Text>
+        </TouchableOpacity>
+      ) : null}
       <TouchableOpacity onPress={handleSignOut} style={styles.button}>
         <Text style={styles.buttonText}>Sign out</Text>
       </TouchableOpacity>
       <Text>Location of your place:</Text>
-      <MapView style={styles.map} onPress={handleMapPress}  region={{ latitude: 49.9808, longitude: 36.2527, latitudeDelta: 0.21, longitudeDelta: 0.21 }} >
+      <MapView
+        style={styles.map}
+        onPress={handleMapPress}
+        region={{
+          latitude: 49.9808,
+          longitude: 36.2527,
+          latitudeDelta: 0.21,
+          longitudeDelta: 0.21,
+        }}
+      >
         {selectedLocation && (
           <Marker
             coordinate={selectedLocation}
@@ -378,7 +377,6 @@ const HomeScreen = () => {
           />
         )}
       </MapView>
-
     </View>
   );
 };
@@ -404,7 +402,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   buttonText: {
-    color: 'white',
+    color: "white",
     fontWeight: "700",
     fontSize: 16,
   },
