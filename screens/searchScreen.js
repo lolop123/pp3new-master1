@@ -132,7 +132,8 @@ const Searchscreen = () => {
           searchStatus: docSnap.data().searchStatus,
           takingEnd: theBigDay,
           takingStart: theBigDay,
-          takerMail: 'admin'
+          takerMail: 'admin',
+          geop: docSnap.data().geop
         };
         await setDoc(doc(db, "people", fruits[index].mail), docData);
         console.log('удалили старое')
@@ -157,7 +158,8 @@ const Searchscreen = () => {
         searchStatus: docSnap.data().searchStatus,
         takingEnd: docSnap.data().date,
         takingStart:textInputValue.dateMax,
-        takerMail: auth.currentUser?.email
+        takerMail: auth.currentUser?.email,
+        geop: docSnap.data().geop
       };
       
       await setDoc(doc(db, "people", textInputValue.mail), docData);
@@ -236,13 +238,13 @@ return (
   <View style={styles.container}>
     <Text>{auth.currentUser?.email}</Text>
     <Text>Choosed {choosedPlase}</Text>
-        <Table style={styless.container} borderStyle={{borderWidth: 1}}>
+        {/* <Table style={styless.container} borderStyle={{borderWidth: 1}}>
          
           <TableWrapper style={styless.wrapper}>
             <Col data={sstate.tableTitle} style={styless.title} heightArr={[28,28]} textStyle={styless.text}/>
             <Rows data={sstate.tableData} flexArr={[1, 1, 1]} style={styless.row} textStyle={styless.text}/>
           </TableWrapper>
-        </Table>
+        </Table> */}
     <SwitchSelector
     buttonColor={'#000000'}
     

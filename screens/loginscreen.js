@@ -251,4 +251,3 @@ const styles = StyleSheet.create({
   },
 });
 
-//напиши функциэ

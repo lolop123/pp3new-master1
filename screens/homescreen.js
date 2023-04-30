@@ -60,7 +60,7 @@ const HomeScreen = () => {
       }
 
       setSelectedLocation(docSnap.data().geop);
-      setSelectedLocation(docSnap.data().geop);
+      setTakerMail(docSnap.data().takerMail);
       console.log("запросили geop:" );
       console.log(docSnap.data().geop)
       console.log(selectedLocation)
@@ -123,6 +123,7 @@ const HomeScreen = () => {
       takingEnd: docSnap.data().takingEnd,
       takingStart: docSnap.data().takingStart,
       takerMail: docSnap.data().takerMail,
+      geop: docSnap.data().geop
     };
 
     setDoc(doc(db, "people", auth.currentUser?.email), docData);
@@ -142,6 +143,7 @@ const HomeScreen = () => {
   const [isSharePlaceVisible, setSharePlaceVisible] = useState(false);
   const [shareDateStart, setShareDateStart] = useState("");
   const [shareDateEnd, setshareDateEnd] = useState("");
+  const [takerMail, setTakerMail] = useState("admin");
   const [selectedLocation, setSelectedLocation] = useState({
     "latitude": 0,
     "longitude": 0,
@@ -212,6 +214,7 @@ const HomeScreen = () => {
       takingEnd: docSnap.data().takingEnd,
       takingStart: docSnap.data().takingStart,
       takerMail: docSnap.data().takerMail,
+      geop: docSnap.data().geop
     };
     
      setDoc(doc(db, "people", auth.currentUser?.email), docData);
@@ -238,6 +241,7 @@ const HomeScreen = () => {
       takingEnd: docSnap.data().takingEnd,
       takingStart: docSnap.data().takingStart,
       takerMail: docSnap.data().takerMail,
+      geop: docSnap.data().geop
     };
     setDoc(doc(db, "people", auth.currentUser?.email), docData);
     hideDatePickerMax();
@@ -294,6 +298,8 @@ const HomeScreen = () => {
       takingEnd: docSnap.data().takingEnd,
       takingStart: docSnap.data().takingStart,
       takerMail: docSnap.data().takerMail,
+      geop: docSnap.data().geop
+      
     };
     try {
       setDoc(doc(db, "people", auth.currentUser?.email), docData);
@@ -320,6 +326,9 @@ const HomeScreen = () => {
           You will share place from: {shareDateStart} to {shareDateEnd}{" "}
         </Text>
       ) : null}
+      {!(takerMail == "admin") ? (
+        <Text>Taker: {takerMail}</Text>
+       ): null}
       {isPermPlaceVisible ? (
         <TouchableOpacity onPress={settPlace} style={styles.button}>
           <Text style={styles.buttonText}>Set my place</Text>
@@ -335,6 +344,7 @@ const HomeScreen = () => {
         <Text style={styles.buttonText}>set date max</Text>
       </TouchableOpacity>
        ) : null}
+       
       <DateTimePickerModal
         isVisible={isDatePickerVisible}
         mode="date"
@@ -358,7 +368,7 @@ const HomeScreen = () => {
       <TouchableOpacity onPress={handleSignOut} style={styles.button}>
         <Text style={styles.buttonText}>Sign out</Text>
       </TouchableOpacity>
-
+      <Text>Location of your place:</Text>
       <MapView style={styles.map} onPress={handleMapPress}  region={{ latitude: 49.9808, longitude: 36.2527, latitudeDelta: 0.21, longitudeDelta: 0.21 }} >
         {selectedLocation && (
           <Marker
@@ -382,7 +392,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   map: {
-    width: 200,
+    width: 420,
     height: 200,
   },
   button: {
