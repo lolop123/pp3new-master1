@@ -8,6 +8,7 @@ import {
 import { useNavigation } from "@react-navigation/core";
 import React, { useEffect, useState } from "react";
 import { initializeApp } from "firebase/app";
+import {Picker} from "@react-native-picker/picker"
 import {
   getFirestore,
   collection,
@@ -31,6 +32,7 @@ const auth = getAuth();
 
 const Searchscreen = () => {
   var theBigDay = new Date(2000, 1, 2);
+  const [selectedLanguage, setSelectedLanguage] = useState();
   const [choosedPlase, setchoosedPlase] = useState(" ");
   const [textInputValue, setTextInputValue] = useState({
     mail: "admin",
@@ -52,7 +54,15 @@ const Searchscreen = () => {
   });
 
   useEffect(() => {
+
+   
     console.log(textInputValue.mail);
+    
+    const getlocationofUser = async () => {
+      const docRef = doc(db, "people", auth.currentUser?.email);
+      const docSnap = await getDoc(docRef);
+      setSelectedLocation(docSnap.data().interestGeop);
+    };getlocationofUser();
 
     const choosePlaceRequest = async () => {
       const placesPool = collection(db, "people");
@@ -66,6 +76,8 @@ const Searchscreen = () => {
       const docRef = await doc(db, "people", fruits[0].mail);
       const docSnap = await getDoc(docRef);
       setchoosedPlase(docSnap.data().permPlace);
+     
+     
     };
     choosePlaceRequest();
     const checlDoubles = async () => {
@@ -95,6 +107,7 @@ const Searchscreen = () => {
           takingStart: theBigDay,
           takerMail: "admin",
           geop: docSnap.data().geop,
+          interestGeop: docSnap.data().interestGeop
         };
         await setDoc(doc(db, "people", fruits[index].mail), docData);
         console.log("удалили старое");
@@ -117,12 +130,11 @@ const Searchscreen = () => {
         takingStart: textInputValue.dateMax,
         takerMail: auth.currentUser?.email,
         geop: docSnap.data().geop,
+        interestGeop: docSnap.data().interestGeop
       };
 
       await setDoc(doc(db, "people", textInputValue.mail), docData);
-      console.log("set do=" + sstate.tableData);
 
-      console.log("set after=" + sstate.tableData);
 
       setchoosedPlase(docSnap.data().permPlace);
       console.log(docSnap.data().permPlace);
@@ -134,6 +146,7 @@ const Searchscreen = () => {
     } else {
       console.log("mail is admin");
     }
+    
   }, [textInputValue]);
 
   const navigation = useNavigation();
@@ -174,10 +187,11 @@ const Searchscreen = () => {
       takingEnd: docSnap.data().takingEnd,
       takingStart: docSnap.data().takingStart,
       takerMail: docSnap.data().takerMail,
-      geop: {
+      geop: docSnap.data().geop,
+      interestGeop:{
         latitude: lat,
         longitude: lg,
-      },
+      }
     };
     setDoc(doc(db, "people", auth.currentUser?.email), docData);
 
@@ -246,6 +260,16 @@ const Searchscreen = () => {
           setTextInputValue(option);
         }}
       ></ModalSelector>
+  
+
+      <Picker  style={{ height: 50, width: 150 }}
+        selectedValue={selectedLanguage}
+        onValueChange={(itemValue, itemIndex) => console.log(itemValue)}
+      >
+        <Picker.Item label="Java" value="java" />
+        <Picker.Item label="JavaScript" value="js" />
+      </Picker>
+
       <MapView
         style={styles.map}
         onPress={handleMapPress}

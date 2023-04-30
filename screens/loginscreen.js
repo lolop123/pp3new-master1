@@ -96,6 +96,10 @@ const LoginScreen = () => {
             latitude: 0.0,
             longitude: 0.0,
           },
+          interestGeop:{
+            latitude: 0.0,
+            longitude: 0.0,
+          }
         };
         console.log("check register1");
         setDoc(doc(db, "people", user.email), docData);

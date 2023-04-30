@@ -119,6 +119,7 @@ const HomeScreen = () => {
       takingStart: docSnap.data().takingStart,
       takerMail: docSnap.data().takerMail,
       geop: docSnap.data().geop,
+      interestGeop: docSnap.data().interestGeop
     };
 
     setDoc(doc(db, "people", auth.currentUser?.email), docData);
@@ -171,6 +172,7 @@ const HomeScreen = () => {
         latitude: lat,
         longitude: lg,
       },
+      interestGeop: docSnap.data().interestGeop
     };
     setDoc(doc(db, "people", auth.currentUser?.email), docData);
 
@@ -208,6 +210,7 @@ const HomeScreen = () => {
       takingStart: docSnap.data().takingStart,
       takerMail: docSnap.data().takerMail,
       geop: docSnap.data().geop,
+      interestGeop: docSnap.data().interestGeop
     };
 
     setDoc(doc(db, "people", auth.currentUser?.email), docData);
@@ -234,6 +237,7 @@ const HomeScreen = () => {
       takingStart: docSnap.data().takingStart,
       takerMail: docSnap.data().takerMail,
       geop: docSnap.data().geop,
+      interestGeop: docSnap.data().interestGeop
     };
     setDoc(doc(db, "people", auth.currentUser?.email), docData);
     hideDatePickerMax();
@@ -291,6 +295,7 @@ const HomeScreen = () => {
       takingStart: docSnap.data().takingStart,
       takerMail: docSnap.data().takerMail,
       geop: docSnap.data().geop,
+      interestGeop: docSnap.data().interestGeop
     };
     try {
       setDoc(doc(db, "people", auth.currentUser?.email), docData);
