@@ -22,7 +22,6 @@ import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import SwitchSelector from "react-native-switch-selector";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import ModalSelector from "react-native-modal-selector";
 import MapView, { Marker } from "react-native-maps";
 import { firebaseConfig } from "../fireconf";
 
@@ -211,7 +210,7 @@ const Searchscreen = () => {
         theBigDay.toLocaleDateString("en-us")
     );
     console.log(fruits);
-    fruits.sort((a, b) => a.date - b.date);
+    fruits.sort((a, b) => b.date - a.date);
 
     let i = 0; //сказал димыч
     // fruits.forEach((object, i) => {
@@ -229,6 +228,11 @@ const Searchscreen = () => {
     console.log("---------");
     console.log(datas);
   }
+  const options = [
+    { key: 1, label: 'Option 1' },
+    { key: 2, label: 'Option 2' },
+    { key: 3, label: 'Option 3' },
+  ];
 
   return (
     <View style={styles.container}>
@@ -248,26 +252,16 @@ const Searchscreen = () => {
       <TouchableOpacity onPress={handleSignOut} style={styles.button}>
         <Text style={styles.buttonText}>Sign out</Text>
       </TouchableOpacity>
-      <ModalSelector
-        data={datas}
-        initValue="Select something yummy!"
-        supportedOrientations={["landscape"]}
-        accessible={true}
-        scrollViewAccessibilityLabel={"Scrollable options"}
-        cancelButtonAccessibilityLabel={"Cancel Button"}
-        labelExtractor={(item) => item.date}
-        onChange={(option) => {
-          setTextInputValue(option);
-        }}
-      ></ModalSelector>
+     
   
 
-      <Picker  style={{ height: 50, width: 150 }}
+      <Picker  style={{ height: 50, width: 300 }}
         selectedValue={selectedLanguage}
-        onValueChange={(itemValue, itemIndex) => console.log(itemValue)}
+        onValueChange={(itemValue, itemIndex) => setTextInputValue(datas[itemIndex])}
       >
-        <Picker.Item label="Java" value="java" />
-        <Picker.Item label="JavaScript" value="js" />
+         {datas.map((datasoption) => (
+    <Picker.Item key={datasoption.key} label={datasoption.date + "+" + datasoption.date} value={datasoption.key} />
+  ))}
       </Picker>
 
       <MapView
