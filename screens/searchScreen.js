@@ -159,7 +159,9 @@ const Searchscreen = () => {
       .catch((error) => alert(error.message));
     await AsyncStorage.setItem("switcherStatusStorage", "a");
   };
-
+  const handleSubmit = async () => {
+    setTextInputValue(datas[0]);
+  };
   const optionsOFSwitcher = [
     { label: "Just not for long", value: 0 },
     { label: "long-term", value: 1 },
@@ -220,6 +222,7 @@ const Searchscreen = () => {
     // });
     fruits.forEach((object) => {
       object.date = object.date.toDate().toLocaleDateString("en-us");
+      object.dateMax = object.dateMax.toDate().toLocaleDateString("en-us");
       object.key = i;
       i = i + 1;
     });
@@ -228,11 +231,6 @@ const Searchscreen = () => {
     console.log("---------");
     console.log(datas);
   }
-  const options = [
-    { key: 1, label: 'Option 1' },
-    { key: 2, label: 'Option 2' },
-    { key: 3, label: 'Option 3' },
-  ];
 
   return (
     <View style={styles.container}>
@@ -254,15 +252,20 @@ const Searchscreen = () => {
       </TouchableOpacity>
      
   
+      <View style={styles.submitView }> 
 
-      <Picker  style={{ height: 50, width: 300 }}
+      <Picker  style={{ height: 50, width: 250 }}
         selectedValue={selectedLanguage}
         onValueChange={(itemValue, itemIndex) => setTextInputValue(datas[itemIndex])}
       >
          {datas.map((datasoption) => (
-    <Picker.Item key={datasoption.key} label={datasoption.date + "+" + datasoption.date} value={datasoption.key} />
+    <Picker.Item key={datasoption.key} label={datasoption.date + " - " + datasoption.dateMax} value={datasoption.key} />
   ))}
       </Picker>
+      <TouchableOpacity onPress={handleSubmit} style={styles.buttonSub}>
+        <Text style={styles.buttonText}>Submit</Text>
+      </TouchableOpacity>
+      </View>
 
       <MapView
         style={styles.map}
@@ -297,6 +300,18 @@ const styles = StyleSheet.create({
   map: {
     width: 420,
     height: 200,
+    marginTop: 10
+  },
+  buttonSub:{
+    backgroundColor: "#000000",
+    width: "20%",
+    padding: 15,
+    borderRadius: 10,
+    alignItems: "center",
+    marginTop: 0,
+  },
+  submitView:{
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',marginTop: 10
   },
   button: {
     backgroundColor: "#000000",
