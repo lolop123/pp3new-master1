@@ -31,14 +31,16 @@ const auth = getAuth();
 
 const Searchscreen = () => {
   var theBigDay = new Date(2000, 1, 2);
-  const [selectedLanguage, setSelectedLanguage] = useState();
-  const [choosedPlase, setchoosedPlase] = useState(" ");
   const [textInputValue, setTextInputValue] = useState({
     mail: "admin",
     key: 1,
     name: "Joe",
     type: "admin",
   });
+  const [selectedLanguage, setSelectedLanguage] = useState();
+  const [choosedPlase, setchoosedPlase] = useState(" ");
+  const [mapstatus, setmapstatus] = useState("Interested place:");
+  
   const [datas, setDatas] = useState([
     {
       key: 1,
@@ -47,21 +49,46 @@ const Searchscreen = () => {
     },
   ]);
 
-  const [selectedLocation, setSelectedLocation] = useState({
+  const [InterestLocation, setInterestLocation] = useState({
     latitude: 0,
     longitude: 0,
   });
+  const [SelectedLocation, setSelectedLocation] = useState({
+    latitude: 0,
+    longitude: 0
+  });
+
 
   useEffect(() => {
 
-   
+    
     console.log(textInputValue.mail);
     
-    const getlocationofUser = async () => {
+    const getlocationofUserAndSelectedPlace = async () => {
       const docRef = doc(db, "people", auth.currentUser?.email);
       const docSnap = await getDoc(docRef);
-      setSelectedLocation(docSnap.data().interestGeop);
-    };getlocationofUser();
+      setInterestLocation(docSnap.data().interestGeop);
+
+      const placesPool = collection(db, "people");
+      const placesSnapshot = await getDocs(placesPool);
+      const placesList = placesSnapshot.docs.map((doc) => doc.data());
+
+      var fruits = placesList.filter(
+        (human) => human.takerMail == auth.currentUser?.email
+      );
+      console.log( SelectedLocation)
+      
+      const docRef1 = await doc(db, "people", fruits[0].mail);
+      const docSnap1 = await getDoc(docRef1);
+      try{
+        setSelectedLocation(docSnap1.data().geop);
+        setmapstatus("Selected place:")
+        console.log( "we are here")
+      } catch{
+
+      }
+      
+    };getlocationofUserAndSelectedPlace();
 
     const choosePlaceRequest = async () => {
       const placesPool = collection(db, "people");
@@ -75,10 +102,12 @@ const Searchscreen = () => {
       const docRef = await doc(db, "people", fruits[0].mail);
       const docSnap = await getDoc(docRef);
       setchoosedPlase(docSnap.data().permPlace);
+
      
      
     };
     choosePlaceRequest();
+  
     const checlDoubles = async () => {
       const placesPool = collection(db, "people");
       const placesSnapshot = await getDocs(placesPool);
@@ -146,6 +175,7 @@ const Searchscreen = () => {
       console.log("mail is admin");
     }
     
+    
   }, [textInputValue]);
 
   const navigation = useNavigation();
@@ -161,6 +191,7 @@ const Searchscreen = () => {
   };
   const handleSubmit = async () => {
     setTextInputValue(datas[0]);
+   
   };
   const optionsOFSwitcher = [
     { label: "Just not for long", value: 0 },
@@ -170,7 +201,7 @@ const Searchscreen = () => {
   const handleMapPress = async (event) => {
     const lat = Number(event.nativeEvent.coordinate.latitude);
     const lg = Number(event.nativeEvent.coordinate.longitude);
-    await setSelectedLocation({
+    await setInterestLocation({
       latitude: lat,
       longitude: lg,
     });
@@ -195,8 +226,8 @@ const Searchscreen = () => {
       }
     };
     setDoc(doc(db, "people", auth.currentUser?.email), docData);
+    
 
-    setReload((oldKey) => oldKey + 2);
   };
 
   async function searchFreePlace() {
@@ -251,22 +282,28 @@ const Searchscreen = () => {
         <Text style={styles.buttonText}>Sign out</Text>
       </TouchableOpacity>
      
-  
-      <View style={styles.submitView }> 
+  {(datas[0].name != "Joe")?
+  (<View style={styles.submitView }> 
 
-      <Picker  style={{ height: 50, width: 250 }}
-        selectedValue={selectedLanguage}
-        onValueChange={(itemValue, itemIndex) => setTextInputValue(datas[itemIndex])}
-      >
-         {datas.map((datasoption) => (
-    <Picker.Item key={datasoption.key} label={datasoption.date + " - " + datasoption.dateMax} value={datasoption.key} />
-  ))}
-      </Picker>
-      <TouchableOpacity onPress={handleSubmit} style={styles.buttonSub}>
-        <Text style={styles.buttonText}>Submit</Text>
-      </TouchableOpacity>
-      </View>
+    <Picker  style={{ height: 50, width: 250 }}
+      selectedValue={selectedLanguage}
+      onValueChange={(itemValue, itemIndex) => setTextInputValue(datas[itemIndex])}
+    >
+       {datas.map((datasoption) => (
+  <Picker.Item key={datasoption.key} label={datasoption.date + " - " + datasoption.dateMax} value={datasoption.key} />
+))}
+    </Picker>
+    <TouchableOpacity onPress={handleSubmit} style={styles.buttonSub}>
+      <Text style={styles.buttonText}>Submit</Text>
+    </TouchableOpacity>
+    </View>
 
+  ): null}
+      
+       
+          <Text>{mapstatus}</Text>
+        {(SelectedLocation == {latitude: 0,
+    longitude: 0}) ? (
       <MapView
         style={styles.map}
         onPress={handleMapPress}
@@ -277,14 +314,38 @@ const Searchscreen = () => {
           longitudeDelta: 0.21,
         }}
       >
-        {selectedLocation && (
+        {InterestLocation && (
           <Marker
-            coordinate={selectedLocation}
-            title="Selected Location"
+            coordinate={InterestLocation}
+            title={"Selected Location"}
             description="This is the selected location"
           />
         )}
       </MapView>
+
+        ) : null}
+        {!(SelectedLocation == {latitude: 0,
+    longitude: 0}) ? (
+      <MapView
+        style={styles.map}
+       
+        region={{
+          latitude: 49.9808,
+          longitude: 36.2527,
+          latitudeDelta: 0.21,
+          longitudeDelta: 0.21,
+        }}
+      >
+        {InterestLocation && (
+          <Marker
+            coordinate={SelectedLocation}
+            title={"Selected Location"}
+            description="This is the selected location"
+          />
+        )}
+      </MapView>
+
+        ) : null}
     </View>
   );
 };
