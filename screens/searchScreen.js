@@ -19,7 +19,6 @@ import {
   Timestamp,
 } from "firebase/firestore";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-import DateTimePickerModal from "react-native-modal-datetime-picker";
 import SwitchSelector from "react-native-switch-selector";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import MapView, { Marker } from "react-native-maps";
@@ -40,7 +39,7 @@ const Searchscreen = () => {
   const [selectedLanguage, setSelectedLanguage] = useState();
   const [choosedPlase, setchoosedPlase] = useState(" ");
   const [mapstatus, setmapstatus] = useState("Interested place:");
-  
+  const [reload, setReload] = useState(0);
   const [datas, setDatas] = useState([
     {
       key: 1,
@@ -108,42 +107,33 @@ const Searchscreen = () => {
     };
     choosePlaceRequest();
   
-    const checlDoubles = async () => {
-      const placesPool = collection(db, "people");
-      const placesSnapshot = await getDocs(placesPool);
-      const placesList = placesSnapshot.docs.map((doc) => doc.data());
+    if (textInputValue.mail != "admin") {
+      checlDoubles();
+      setTimeout(setPlace, 500);
+    } else {
+      console.log("mail is admin");
+    }
+    
+    
+  }, [reload]);
 
-      var fruits = placesList.filter(
-        (human) => human.takerMail == auth.currentUser?.email
-      );
-      console.log("takers");
-      console.log(fruits);
+  const navigation = useNavigation();
+  const [switcherStatus, setswitcherStatus] = useState(1);
 
-      for (let index = 0; index < fruits.length; index++) {
-        const docRef = await doc(db, "people", fruits[index].mail);
-        const docSnap = await getDoc(docRef);
+  
+  const checlDoubles = async () => {
+    const placesPool = collection(db, "people");
+    const placesSnapshot = await getDocs(placesPool);
+    const placesList = placesSnapshot.docs.map((doc) => doc.data());
 
-        const docData = {
-          currentPlace: 0,
-          mail: docSnap.data().mail,
-          permPlace: docSnap.data().permPlace,
-          date: docSnap.data().date,
-          dateMax: docSnap.data().dateMax,
-          statusOfPermPla: "free",
-          searchStatus: docSnap.data().searchStatus,
-          takingEnd: theBigDay,
-          takingStart: theBigDay,
-          takerMail: "admin",
-          geop: docSnap.data().geop,
-          interestGeop: docSnap.data().interestGeop
-        };
-        await setDoc(doc(db, "people", fruits[index].mail), docData);
-        console.log("удалили старое");
-      }
-    };
+    var fruits = placesList.filter(
+      (human) => human.takerMail == auth.currentUser?.email
+    );
+    console.log("takers");
+    console.log(fruits);
 
-    const setPlace = async () => {
-      const docRef = await doc(db, "people", textInputValue.mail);
+    for (let index = 0; index < fruits.length; index++) {
+      const docRef = await doc(db, "people", fruits[index].mail);
       const docSnap = await getDoc(docRef);
 
       const docData = {
@@ -154,32 +144,44 @@ const Searchscreen = () => {
         dateMax: docSnap.data().dateMax,
         statusOfPermPla: "free",
         searchStatus: docSnap.data().searchStatus,
-        takingEnd: docSnap.data().date,
-        takingStart: textInputValue.dateMax,
-        takerMail: auth.currentUser?.email,
+        takingEnd: theBigDay,
+        takingStart: theBigDay,
+        takerMail: "admin",
         geop: docSnap.data().geop,
         interestGeop: docSnap.data().interestGeop
       };
-
-      await setDoc(doc(db, "people", textInputValue.mail), docData);
-
-
-      setchoosedPlase(docSnap.data().permPlace);
-      console.log(docSnap.data().permPlace);
-      console.log("вставили новое");
-    };
-    if (textInputValue.mail != "admin") {
-      checlDoubles();
-      setTimeout(setPlace, 500);
-    } else {
-      console.log("mail is admin");
+      await setDoc(doc(db, "people", fruits[index].mail), docData);
+      console.log("удалили старое");
     }
-    
-    
-  }, [textInputValue]);
+  };
 
-  const navigation = useNavigation();
-  const [switcherStatus, setswitcherStatus] = useState(1);
+  const setPlace = async (object) => {
+    const docRef = await doc(db, "people", object.mail);
+    const docSnap = await getDoc(docRef);
+
+    const docData = {
+      currentPlace: 0,
+      mail: docSnap.data().mail,
+      permPlace: docSnap.data().permPlace,
+      date: docSnap.data().date,
+      dateMax: docSnap.data().dateMax,
+      statusOfPermPla: "free",
+      searchStatus: docSnap.data().searchStatus,
+      takingEnd: docSnap.data().date,
+      takingStart: object.dateMax,
+      takerMail: auth.currentUser?.email,
+      geop: docSnap.data().geop,
+      interestGeop: docSnap.data().interestGeop
+    };
+
+    await setDoc(doc(db, "people", object.mail), docData);
+
+
+    setchoosedPlase(docSnap.data().permPlace);
+    console.log(docSnap.data().permPlace);
+    console.log("вставили новое");
+  };
+
   const handleSignOut = async () => {
     auth
       .signOut()
@@ -189,10 +191,21 @@ const Searchscreen = () => {
       .catch((error) => alert(error.message));
     await AsyncStorage.setItem("switcherStatusStorage", "a");
   };
+  const handleStopTaking = async()=>{
+
+  }
   const handleSubmit = async () => {
-    setTextInputValue(datas[0]);
-   
+    checlDoubles();
+    setPlace(datas[0]);
+    setSelectedLanguage(datas[0]);
+    setReload((oldKey) => oldKey + 2);
   };
+  const setPickerValue = async(object, itemValue)=>{
+    checlDoubles();
+    setPlace(object);
+    setSelectedLanguage(itemValue);
+     setReload((oldKey) => oldKey + 2);
+  }
   const optionsOFSwitcher = [
     { label: "Just not for long", value: 0 },
     { label: "long-term", value: 1 },
@@ -287,7 +300,7 @@ const Searchscreen = () => {
 
     <Picker  style={{ height: 50, width: 250 }}
       selectedValue={selectedLanguage}
-      onValueChange={(itemValue, itemIndex) => setTextInputValue(datas[itemIndex])}
+      onValueChange={(itemValue, itemIndex) => setPickerValue(datas[itemIndex],itemValue)}
     >
        {datas.map((datasoption) => (
   <Picker.Item key={datasoption.key} label={datasoption.date + " - " + datasoption.dateMax} value={datasoption.key} />
@@ -295,6 +308,9 @@ const Searchscreen = () => {
     </Picker>
     <TouchableOpacity onPress={handleSubmit} style={styles.buttonSub}>
       <Text style={styles.buttonText}>Submit</Text>
+    </TouchableOpacity>
+    <TouchableOpacity onPress={handleStopTaking} style={styles.buttonStop}>
+      <Text style={styles.buttonText}>Stop</Text>
     </TouchableOpacity>
     </View>
 
@@ -362,6 +378,14 @@ const styles = StyleSheet.create({
     width: 420,
     height: 200,
     marginTop: 10
+  },
+  buttonStop:{
+    backgroundColor: "red",
+    width: "20%",
+    padding: 15,
+    borderRadius: 10,
+    alignItems: "center",
+    marginTop: 0,
   },
   buttonSub:{
     backgroundColor: "#000000",
