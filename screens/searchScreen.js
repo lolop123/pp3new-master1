@@ -192,7 +192,9 @@ const Searchscreen = () => {
     await AsyncStorage.setItem("switcherStatusStorage", "a");
   };
   const handleStopTaking = async()=>{
-
+    checlDoubles();
+    setmapstatus("Interested place:");
+    setReload((oldKey) => oldKey + 2);
   }
   const handleSubmit = async () => {
     checlDoubles();
