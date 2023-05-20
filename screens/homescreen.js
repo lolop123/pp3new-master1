@@ -307,6 +307,9 @@ const HomeScreen = () => {
 
   return (
     <View style={styles.container}>
+        <TouchableOpacity onPress={handleSignOut} style={styles.buttonExit}>
+        <Text style={styles.buttonText}>Exit</Text>
+      </TouchableOpacity>
       <Text>Email: {auth.currentUser?.email}</Text>
 
       <TextInput
@@ -360,9 +363,7 @@ const HomeScreen = () => {
           <Text style={styles.buttonText}>Dont share</Text>
         </TouchableOpacity>
       ) : null}
-      <TouchableOpacity onPress={handleSignOut} style={styles.button}>
-        <Text style={styles.buttonText}>Sign out</Text>
-      </TouchableOpacity>
+      
       <Text>Location of your place:</Text>
       <MapView
         style={styles.map}
@@ -391,7 +392,6 @@ export default HomeScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
     alignItems: "center",
   },
   map: {
@@ -415,5 +415,15 @@ const styles = StyleSheet.create({
     color: "red",
     fontWeight: "700",
     fontSize: 16,
+  },
+  buttonExit:{
+    display:"flex",
+    backgroundColor: "gray",
+    width: "15%",
+    padding: 7,
+    borderRadius: 14,
+    marginLeft: "82%",
+    alignItems: "center",
+    marginTop: 0,
   },
 });

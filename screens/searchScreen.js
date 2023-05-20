@@ -309,10 +309,12 @@ const Searchscreen = () => {
         onPress={(value) => setswitcherStatus(value)}
       />
       ) : null}
-      
-      <TouchableOpacity onPress={searchFreePlace} style={styles.button}>
+      {!(ChoosenLocation.latitude == 0) ? (
+        <TouchableOpacity onPress={searchFreePlace} style={styles.button}>
         <Text style={styles.buttonText}>Search free place</Text>
       </TouchableOpacity>
+      ): null}
+      
 
   {(datas[0].name != "Joe")?
   (<View style={styles.submitView }> 
@@ -396,7 +398,7 @@ const styles = StyleSheet.create({
   },
   map: {
     width: 420,
-    height: 200,
+    height: 250,
     marginTop: 10
   },
   buttonStop:{
@@ -437,7 +439,6 @@ const styles = StyleSheet.create({
     width: "15%",
     padding: 7,
     borderRadius: 14,
-    
     marginLeft: "82%",
     alignItems: "center",
     marginTop: 0,
