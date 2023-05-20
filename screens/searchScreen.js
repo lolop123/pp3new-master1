@@ -52,7 +52,7 @@ const Searchscreen = () => {
     latitude: 0,
     longitude: 0,
   });
-  const [SelectedLocation, setSelectedLocation] = useState({
+  const [ChoosenLocation, setChoosenLocation] = useState({
     latitude: 0,
     longitude: 0
   });
@@ -75,12 +75,16 @@ const Searchscreen = () => {
       var fruits = placesList.filter(
         (human) => human.takerMail == auth.currentUser?.email
       );
-      console.log( SelectedLocation)
+      console.log( ChoosenLocation)
       
       const docRef1 = await doc(db, "people", fruits[0].mail);
       const docSnap1 = await getDoc(docRef1);
       try{
-        setSelectedLocation(docSnap1.data().geop);
+
+        console.log('геопозиция в фаебасе')
+        console.log(docSnap1.data().geop)
+
+        setChoosenLocation(docSnap1.data().geop);
         setmapstatus("Selected place:")
         console.log( "we are here")
       } catch{
@@ -194,6 +198,11 @@ const Searchscreen = () => {
   const handleStopTaking = async()=>{
     checlDoubles();
     setmapstatus("Interested place:");
+    setChoosenLocation({
+      latitude: 0,
+      longitude: 0
+    });
+    console.log(ChoosenLocation);
     setReload((oldKey) => oldKey + 2);
   }
   const handleSubmit = async () => {
@@ -276,27 +285,35 @@ const Searchscreen = () => {
     await setDatas(fruits);
     console.log("---------");
     console.log(datas);
+    console.log(ChoosenLocation)
   }
 
   return (
     <View style={styles.container}>
+      <TouchableOpacity onPress={handleSignOut} style={styles.buttonExit}>
+        <Text style={styles.buttonText}>Exit</Text>
+      </TouchableOpacity>
+     
       <Text>{auth.currentUser?.email}</Text>
-      <Text>Choosed {choosedPlase}</Text>
-
-      <SwitchSelector
+      {!(ChoosenLocation.latitude == 0) ? (
+        
+        <Text>Choosed place: {choosedPlase}</Text>
+      ) : null}
+ {(ChoosenLocation.latitude == 0) ? (
+        
+        <SwitchSelector
+      style={{marginTop:10}}
         buttonColor={"#000000"}
         options={optionsOFSwitcher}
         initial={0}
         onPress={(value) => setswitcherStatus(value)}
       />
+      ) : null}
+      
       <TouchableOpacity onPress={searchFreePlace} style={styles.button}>
         <Text style={styles.buttonText}>Search free place</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={handleSignOut} style={styles.button}>
-        <Text style={styles.buttonText}>Sign out</Text>
-      </TouchableOpacity>
-     
   {(datas[0].name != "Joe")?
   (<View style={styles.submitView }> 
 
@@ -311,17 +328,18 @@ const Searchscreen = () => {
     <TouchableOpacity onPress={handleSubmit} style={styles.buttonSub}>
       <Text style={styles.buttonText}>Submit</Text>
     </TouchableOpacity>
-    <TouchableOpacity onPress={handleStopTaking} style={styles.buttonStop}>
+    {!(ChoosenLocation.latitude == 0) ? 
+    (<TouchableOpacity onPress={handleStopTaking} style={styles.buttonStop}>
       <Text style={styles.buttonText}>Stop</Text>
-    </TouchableOpacity>
+    </TouchableOpacity>) : null}
+    
     </View>
 
   ): null}
       
        
           <Text>{mapstatus}</Text>
-        {(SelectedLocation == {latitude: 0,
-    longitude: 0}) ? (
+        {(ChoosenLocation.latitude == 0) ? (
       <MapView
         style={styles.map}
         onPress={handleMapPress}
@@ -342,8 +360,8 @@ const Searchscreen = () => {
       </MapView>
 
         ) : null}
-        {!(SelectedLocation == {latitude: 0,
-    longitude: 0}) ? (
+
+{!(ChoosenLocation.latitude == 0) ? (
       <MapView
         style={styles.map}
        
@@ -356,7 +374,7 @@ const Searchscreen = () => {
       >
         {InterestLocation && (
           <Marker
-            coordinate={SelectedLocation}
+            coordinate={ChoosenLocation}
             title={"Selected Location"}
             description="This is the selected location"
           />
@@ -364,6 +382,7 @@ const Searchscreen = () => {
       </MapView>
 
         ) : null}
+      
     </View>
   );
 };
@@ -373,7 +392,6 @@ export default Searchscreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
     alignItems: "center",
   },
   map: {
@@ -382,7 +400,7 @@ const styles = StyleSheet.create({
     marginTop: 10
   },
   buttonStop:{
-    backgroundColor: "red",
+    backgroundColor: "gray",
     width: "20%",
     padding: 15,
     borderRadius: 10,
@@ -412,6 +430,17 @@ const styles = StyleSheet.create({
     color: "white",
     fontWeight: "700",
     fontSize: 16,
+  },
+  buttonExit:{
+    display:"flex",
+    backgroundColor: "gray",
+    width: "15%",
+    padding: 7,
+    borderRadius: 14,
+    
+    marginLeft: "82%",
+    alignItems: "center",
+    marginTop: 0,
   },
   input: {
     color: "red",
