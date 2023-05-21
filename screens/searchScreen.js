@@ -74,12 +74,12 @@ const Searchscreen = () => {
       const placesSnapshot = await getDocs(placesPool);
       const placesList = placesSnapshot.docs.map((doc) => doc.data());
 
-      var fruits = placesList.filter(
+      var sortedPlaces = placesList.filter(
         (human) => human.takerMail == auth.currentUser?.email
       );
       console.log( ChoosenLocation)
       
-      const docRef1 = await doc(db, "people", fruits[0].mail);
+      const docRef1 = await doc(db, "people", sortedPlaces[0].mail);
       const docSnap1 = await getDoc(docRef1);
       try{
 
@@ -98,11 +98,11 @@ const Searchscreen = () => {
       const placesSnapshot = await getDocs(placesPool);
       const placesList = placesSnapshot.docs.map((doc) => doc.data());
 
-      var fruits = placesList.filter(
+      var sortedPlaces = placesList.filter(
         (human) => human.takerMail == auth.currentUser?.email
       );
 
-      const docRef = await doc(db, "people", fruits[0].mail);
+      const docRef = await doc(db, "people", sortedPlaces[0].mail);
       const docSnap = await getDoc(docRef);
       setChoosenPlace(docSnap.data().permPlace);
 
@@ -130,14 +130,14 @@ const Searchscreen = () => {
     const placesSnapshot = await getDocs(placesPool);
     const placesList = placesSnapshot.docs.map((doc) => doc.data());
 
-    var fruits = placesList.filter(
+    var sortedPlaces = placesList.filter(
       (human) => human.takerMail == auth.currentUser?.email
     );
     console.log("takers");
-    console.log(fruits);
+    console.log(sortedPlaces);
 
-    for (let index = 0; index < fruits.length; index++) {
-      const docRef = await doc(db, "people", fruits[index].mail);
+    for (let index = 0; index < sortedPlaces.length; index++) {
+      const docRef = await doc(db, "people", sortedPlaces[index].mail);
       const docSnap = await getDoc(docRef);
 
       const docData = {
@@ -154,7 +154,7 @@ const Searchscreen = () => {
         geop: docSnap.data().geop,
         interestGeop: docSnap.data().interestGeop
       };
-      await setDoc(doc(db, "people", fruits[index].mail), docData);
+      await setDoc(doc(db, "people", sortedPlaces[index].mail), docData);
       console.log("удалили старое");
     }
   };
@@ -284,29 +284,94 @@ const Searchscreen = () => {
     const placesList = placesSnapshot.docs.map((doc) => doc.data());
     const docSnap = await getDoc(doc(db, "people", auth.currentUser?.email));
 
-    var fruits = placesList.filter(
+    var sortedPlaces = placesList.filter(
       (human) =>
         human.date.toDate().toLocaleDateString("en-us") !=
         theBigDay.toLocaleDateString("en-us")
     );
-    console.log(fruits);
-    fruits.sort((a, b) => b.date - a.date);
+    console.log(sortedPlaces);
+    sortedPlaces.sort((a, b) => b.date - a.date);
+
+
+    const AStarPlaces = [];
 
     let i = 0; 
-    fruits.forEach((object) => {
+    sortedPlaces.forEach((object) => {
+      object.availabilityDays = (((object.dateMax - object.date) /360)/24)/10;
       object.date = object.date.toDate().toLocaleDateString("en-us");
       object.dateMax = object.dateMax.toDate().toLocaleDateString("en-us");
       object.key = i;
       i = i + 1;
       object.DistanceFromIntToSelPlace = calculateDistance(object.geop, docSnap.data().interestGeop)
+      findPath()
     });
 
-    await setDatas(fruits);
+    await setDatas(sortedPlaces);
     console.log("---------");
     console.log(datas);
-    //console.log(ChoosenLocation)
-    console.log(calculateDistance(fruits[0].geop,docSnap.data().interestGeop))
+ 
+    console.log(calculateDistance(sortedPlaces[0].geop,docSnap.data().interestGeop))
   }
+
+  function findPath(start, end, availabilityDays) {
+    const openSet = [{ position: start, gScore: 0, hScore: calculateDistance(start, end) }];
+    const closedSet = [];
+  
+    const getNextNode = () => {
+      // Знаходження вузла з найменшою сумарною оцінкою вартості шляху
+      let currentNode = openSet[0];
+      openSet.forEach((node) => {
+        if (node.gScore + node.hScore < currentNode.gScore + currentNode.hScore) {
+          currentNode = node;
+        }
+      });
+      return currentNode;
+    };
+  
+    while (openSet.length > 0) {  
+      const currentNode = getNextNode();
+  
+      if (
+        calculateDistance(currentNode.position, end) < 0.1 &&
+        availabilityDays >= 0
+      ) {
+        // Шлях знайдено
+        return currentNode;
+      }
+  
+      openSet.splice(openSet.indexOf(currentNode), 1);
+      closedSet.push(currentNode);
+  
+      const neighbors = getNeighbors(currentNode.position);
+  
+      neighbors.forEach((neighbor) => {
+        if (closedSet.some((node) => node.position === neighbor)) {
+          return;
+        }
+  
+        const gScore = currentNode.gScore + calculateDistance(currentNode.position, neighbor);
+        const hScore = calculateDistance(neighbor, end);
+        const fScore = gScore + hScore;
+  
+        const existingNode = openSet.find((node) => node.position === neighbor);
+  
+        if (existingNode && existingNode.fScore <= fScore) {
+          return;
+        }
+  
+        if (existingNode) {
+          existingNode.gScore = gScore;
+          existingNode.hScore = hScore;
+        } else {
+          openSet.push({ position: neighbor, gScore, hScore });
+        }
+      });
+    }
+  
+    // Шлях не знайдено
+    return null;
+  }
+  
 
   return (
     <View style={styles.container}>

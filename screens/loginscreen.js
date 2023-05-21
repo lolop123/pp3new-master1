@@ -13,12 +13,11 @@ import React, { useEffect, useState } from "react";
 import { initializeApp } from "firebase/app";
 import {
   getFirestore,
-  collection,
-  getDocs,
+
   setDoc,
   doc,
-  getDoc,
-  Timestamp,
+
+
 } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { firebaseConfig } from "../fireconf";
@@ -31,7 +30,7 @@ const _storeData = async (value) => {
     await AsyncStorage.setItem("switcherStatusStorage", value);
     console.log(value);
   } catch (error) {
-    // Error saving data
+   
   }
 };
 async function retrieveData() {
@@ -55,8 +54,6 @@ const LoginScreen = () => {
   var theBigDay = new Date(2000, 1, 2);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [switcherStatus, setswitcherStatus] = useState(0);
-
   const navigation = useNavigation();
   const [isEnabled, setIsEnabled] = useState(false);
   const toggleSwitch = () => setIsEnabled((previousState) => !previousState);
@@ -117,27 +114,10 @@ const LoginScreen = () => {
       })
       .catch((error) => alert(error.message));
     console.log("logged in");
-    // sendSearchStatus();
+   
   };
 
-  // async function sendSearchStatus() {
-  //   console.log("get start");
-  //   const docSnap = await getDoc(doc(db, "people", auth.currentUser?.email));
-  //   const docData = {
-  //     currentPlace: docSnap.data().currentPlace,
-  //     mail: auth.currentUser?.email,
-  //     permPlace: docSnap.data().permPlace,
-  //     date: docSnap.data().date,
-  //     dateMax: docSnap.data().dateMax,
-  //     statusOfPermPla: docSnap.data().statusOfPermPla,
-  //     searchStatus: switcherStatus,
-  //   };
-
-  //   setDoc(doc(db, "people", auth.currentUser?.email), docData);
-  //   console.log("sended" + switcherStatus);
-  //   console.log("login end");
-  // }
-
+ 
   const optionsOFSwitcher = [
     { label: "I have a place", value: "a" },
     { label: "I'll search a place", value: "b" },
@@ -175,7 +155,7 @@ const LoginScreen = () => {
         <TouchableOpacity onPress={handleSignUp} style={styles.button}>
           <Text style={styles.buttonText}>Register</Text>
         </TouchableOpacity>
-        {/*  <MapView style={styles.map} />*/}
+        
       </View>
     </KeyboardAvoidingView>
   );
