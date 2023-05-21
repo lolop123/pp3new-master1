@@ -55,3 +55,4 @@ web-build/
 dist/
 /fireconf.js
 /android/app/debug.keystore
+.history

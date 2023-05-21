@@ -8,7 +8,9 @@ import {
 import { useNavigation } from "@react-navigation/core";
 import React, { useEffect, useState } from "react";
 import { initializeApp } from "firebase/app";
-import {Picker} from "@react-native-picker/picker"
+import {Picker} from "@react-native-picker/picker";
+
+
 import {
   getFirestore,
   collection,
@@ -37,7 +39,7 @@ const Searchscreen = () => {
     type: "admin",
   });
   const [selectedLanguage, setSelectedLanguage] = useState();
-  const [choosedPlase, setchoosedPlase] = useState(" ");
+  const [ChoosenPlace, setChoosenPlace] = useState(" ");
   const [mapstatus, setmapstatus] = useState("Interested place:");
   const [reload, setReload] = useState(0);
   const [datas, setDatas] = useState([
@@ -81,9 +83,7 @@ const Searchscreen = () => {
       const docSnap1 = await getDoc(docRef1);
       try{
 
-        console.log('геопозиция в фаебасе')
-        console.log(docSnap1.data().geop)
-
+       
         setChoosenLocation(docSnap1.data().geop);
         setmapstatus("Selected place:")
         console.log( "we are here")
@@ -104,7 +104,7 @@ const Searchscreen = () => {
 
       const docRef = await doc(db, "people", fruits[0].mail);
       const docSnap = await getDoc(docRef);
-      setchoosedPlase(docSnap.data().permPlace);
+      setChoosenPlace(docSnap.data().permPlace);
 
      
      
@@ -181,7 +181,7 @@ const Searchscreen = () => {
     await setDoc(doc(db, "people", object.mail), docData);
 
 
-    setchoosedPlase(docSnap.data().permPlace);
+    setChoosenPlace(docSnap.data().permPlace);
     console.log(docSnap.data().permPlace);
     console.log("вставили новое");
   };
@@ -216,6 +216,28 @@ const Searchscreen = () => {
     setPlace(object);
     setSelectedLanguage(itemValue);
      setReload((oldKey) => oldKey + 2);
+  };
+  function toRadians (degrees) {
+    return degrees * (Math.PI / 180);
+  }
+  function calculateDistance (point1, point2) {
+    const lat1Rad = toRadians(point1.latitude);
+    const lon1Rad = toRadians(point1.longitude);  
+    const lat2Rad = toRadians(point2.latitude);
+    const lon2Rad = toRadians(point2.longitude);
+  
+    const earthRadius = 6371; // Radius of the Earth in kilometers
+  
+    const latDiff = lat2Rad - lat1Rad;
+    const lonDiff = lon2Rad - lon1Rad;
+  
+    const a =
+      Math.sin(latDiff / 2) ** 2 +
+      Math.cos(lat1Rad) * Math.cos(lat2Rad) * Math.sin(lonDiff / 2) ** 2;
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distance = earthRadius * c;
+  console.log(distance);
+    return distance;
   }
   const optionsOFSwitcher = [
     { label: "Just not for long", value: 0 },
@@ -260,6 +282,7 @@ const Searchscreen = () => {
     const placesPool = collection(db, "people");
     const placesSnapshot = await getDocs(placesPool);
     const placesList = placesSnapshot.docs.map((doc) => doc.data());
+    const docSnap = await getDoc(doc(db, "people", auth.currentUser?.email));
 
     var fruits = placesList.filter(
       (human) =>
@@ -269,23 +292,20 @@ const Searchscreen = () => {
     console.log(fruits);
     fruits.sort((a, b) => b.date - a.date);
 
-    let i = 0; //сказал димыч
-    // fruits.forEach((object, i) => {
-    //   object.date = object.date.toDate().toLocaleDateString('en-us')
-    //   object.key = i;
-    //   i = i + 1;
-    // });
+    let i = 0; 
     fruits.forEach((object) => {
       object.date = object.date.toDate().toLocaleDateString("en-us");
       object.dateMax = object.dateMax.toDate().toLocaleDateString("en-us");
       object.key = i;
       i = i + 1;
+      object.DistanceFromIntToSelPlace = calculateDistance(object.geop, docSnap.data().interestGeop)
     });
 
     await setDatas(fruits);
     console.log("---------");
     console.log(datas);
-    console.log(ChoosenLocation)
+    //console.log(ChoosenLocation)
+    console.log(calculateDistance(fruits[0].geop,docSnap.data().interestGeop))
   }
 
   return (
@@ -297,7 +317,7 @@ const Searchscreen = () => {
       <Text>{auth.currentUser?.email}</Text>
       {!(ChoosenLocation.latitude == 0) ? (
         
-        <Text>Choosed place: {choosedPlase}</Text>
+        <Text>Choosen place: {ChoosenPlace}</Text>
       ) : null}
  {(ChoosenLocation.latitude == 0) ? (
         
@@ -324,8 +344,8 @@ const Searchscreen = () => {
       onValueChange={(itemValue, itemIndex) => setPickerValue(datas[itemIndex],itemValue)}
     >
        {datas.map((datasoption) => (
-  <Picker.Item key={datasoption.key} label={datasoption.date + " - " + datasoption.dateMax} value={datasoption.key} />
-))}
+  <Picker.Item key={datasoption.key} label={datasoption.date.slice(0, -3) + " - " + datasoption.dateMax.slice(0, -3) + ", " + (datasoption.DistanceFromIntToSelPlace ).toFixed(1) + " km"} value={datasoption.key} />
+  ))}
     </Picker>
     <TouchableOpacity onPress={handleSubmit} style={styles.buttonSub}>
       <Text style={styles.buttonText}>Submit</Text>
@@ -403,19 +423,21 @@ const styles = StyleSheet.create({
   },
   buttonStop:{
     backgroundColor: "gray",
-    width: "20%",
+    width: "16%",
     padding: 15,
-    borderRadius: 10,
+    borderRadius: 17,
     alignItems: "center",
     marginTop: 0,
+    marginRight: 7
   },
   buttonSub:{
     backgroundColor: "#000000",
     width: "20%",
     padding: 15,
-    borderRadius: 10,
+    borderRadius: 17,
     alignItems: "center",
     marginTop: 0,
+    marginRight:4
   },
   submitView:{
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',marginTop: 10

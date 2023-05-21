@@ -139,8 +139,8 @@ const LoginScreen = () => {
   // }
 
   const optionsOFSwitcher = [
-    { label: "I have place", value: "a" },
-    { label: "Ill search place", value: "b" },
+    { label: "I have a place", value: "a" },
+    { label: "I'll search a place", value: "b" },
   ];
 
   return (
