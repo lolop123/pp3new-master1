@@ -122,7 +122,7 @@ const Searchscreen = () => {
   }, [reload]);
 
   const navigation = useNavigation();
-  const [switcherStatus, setswitcherStatus] = useState(1);
+  const [switcherStatus, setswitcherStatus] = useState("Short");
 
   
   const checlDoubles = async () => {
@@ -240,8 +240,8 @@ const Searchscreen = () => {
     return distance;
   }
   const optionsOFSwitcher = [
-    { label: "Just not for long", value: 0 },
-    { label: "long-term", value: 1 },
+    { label: "Short", value: 0 },
+    { label: "Long", value: 1 },
   ];
 
   const handleMapPress = async (event) => {
@@ -290,10 +290,10 @@ const Searchscreen = () => {
         theBigDay.toLocaleDateString("en-us")
     );
     console.log(sortedPlaces);
-    sortedPlaces.sort((a, b) => b.date - a.date);
+    //sortedPlaces.sort((a, b) => b.date - a.date);
 
 
-    const AStarPlaces = [];
+
 
     let i = 0; 
     sortedPlaces.forEach((object) => {
@@ -303,75 +303,33 @@ const Searchscreen = () => {
       object.key = i;
       i = i + 1;
       object.DistanceFromIntToSelPlace = calculateDistance(object.geop, docSnap.data().interestGeop)
-      findPath()
+      
     });
-
+    console.log("switcher");
+    console.log(switcherStatus);
+    sortedPlaces = kNeighbors(sortedPlaces,3,switcherStatus);
     await setDatas(sortedPlaces);
     console.log("---------");
     console.log(datas);
  
-    console.log(calculateDistance(sortedPlaces[0].geop,docSnap.data().interestGeop))
+    //console.log(calculateDistance(sortedPlaces[0].geop,docSnap.data().interestGeop))
   }
 
-  function findPath(start, end, availabilityDays) {
-    const openSet = [{ position: start, gScore: 0, hScore: calculateDistance(start, end) }];
-    const closedSet = [];
+ 
+  function kNeighbors(places, k = 3, sortByTime ) {
+    const sortedPlaces = [...places];
   
-    const getNextNode = () => {
-      // Знаходження вузла з найменшою сумарною оцінкою вартості шляху
-      let currentNode = openSet[0];
-      openSet.forEach((node) => {
-        if (node.gScore + node.hScore < currentNode.gScore + currentNode.hScore) {
-          currentNode = node;
-        }
-      });
-      return currentNode;
-    };
-  
-    while (openSet.length > 0) {  
-      const currentNode = getNextNode();
-  
-      if (
-        calculateDistance(currentNode.position, end) < 0.1 &&
-        availabilityDays >= 0
-      ) {
-        // Шлях знайдено
-        return currentNode;
-      }
-  
-      openSet.splice(openSet.indexOf(currentNode), 1);
-      closedSet.push(currentNode);
-  
-      const neighbors = getNeighbors(currentNode.position);
-  
-      neighbors.forEach((neighbor) => {
-        if (closedSet.some((node) => node.position === neighbor)) {
-          return;
-        }
-  
-        const gScore = currentNode.gScore + calculateDistance(currentNode.position, neighbor);
-        const hScore = calculateDistance(neighbor, end);
-        const fScore = gScore + hScore;
-  
-        const existingNode = openSet.find((node) => node.position === neighbor);
-  
-        if (existingNode && existingNode.fScore <= fScore) {
-          return;
-        }
-  
-        if (existingNode) {
-          existingNode.gScore = gScore;
-          existingNode.hScore = hScore;
-        } else {
-          openSet.push({ position: neighbor, gScore, hScore });
-        }
-      });
-    }
-  
-    // Шлях не знайдено
-    return null;
+    sortedPlaces.sort((a, b) => 
+    
+      a.DistanceFromIntToSelPlace - b.DistanceFromIntToSelPlace
+
+    );
+    const sortedPlaces1 = sortedPlaces.slice(0, k);
+    if (sortByTime == "Short") {sortedPlaces1.sort((a, b) => a.availabilityDays - b.availabilityDays); console.log("shortttt")     };
+    if (sortByTime == "Long") {sortedPlaces1.sort((a, b) => b.availabilityDays - a.availabilityDays)};
+    return sortedPlaces1;
   }
-  
+    
 
   return (
     <View style={styles.container}>
@@ -391,14 +349,14 @@ const Searchscreen = () => {
         buttonColor={"#000000"}
         options={optionsOFSwitcher}
         initial={0}
-        onPress={(value) => setswitcherStatus(value)}
+        onPress={(value) => setswitcherStatus(optionsOFSwitcher[value].label)}
       />
       ) : null}
-      {!(ChoosenLocation.latitude == 0) ? (
+     
         <TouchableOpacity onPress={searchFreePlace} style={styles.button}>
         <Text style={styles.buttonText}>Search free place</Text>
       </TouchableOpacity>
-      ): null}
+      
       
 
   {(datas[0].name != "Joe")?
